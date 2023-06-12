@@ -71,6 +71,8 @@ router.post("/login",async(req,res)=>{
 router.post('/get-user-info-by-id',authMiddleware, async(req,res)=>{
     try {
         const user = await User.findOne({_id : req.body.userId})
+        console.log(user,"this is @userruouteeeeeeee")
+        user.password = undefined
         if(!user){
             return res
             .status(200)
@@ -78,10 +80,8 @@ router.post('/get-user-info-by-id',authMiddleware, async(req,res)=>{
         }else{
             res
             .status(200)
-            .send({success:true,data:{
-                name:user.name,
-                email:user.email
-            }})
+            .send({success:true,
+                data:user})
         }
     } catch (error) {
         res.status(500)
@@ -89,4 +89,30 @@ router.post('/get-user-info-by-id',authMiddleware, async(req,res)=>{
     }
 })
 
+router.post("/get-single-user-info",authMiddleware,async(req,res)=>{
+    const user = await User.findOne({_id:req.body.userId})
+    console.log(user,"user info of one person this is @Userrroute")
+    if(!user){
+        return res
+        .status(200)
+        .send({message:"user does not exist",success:false})
+    }else{
+        return res
+        .status(200)
+        .json(user) 
+    }
+
+})
+
+router.patch("/edited-info",authMiddleware,async(req,res)=>{
+     console.log(req.body,"body");
+     const {name,email} = req.body.value
+     console.log(name,email,"bodttt");
+     console.log(req.query.id,"idd");
+    const edit = await User.findByIdAndUpdate({_id:req.query.id},
+     {   $set:{name:name,email:email} })
+     return res
+     .status(200)
+     .json({message:"updated successfully"}) 
+})
 module.exports = router;
